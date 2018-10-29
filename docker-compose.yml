@@ -5,6 +5,7 @@ services:
     container_name: dns
     image: defreitas/dns-proxy-server
     hostname: dns
+    domainname: docker.internal
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/resolv.conf:/etc/resolv.conf
@@ -19,6 +20,7 @@ services:
     container_name: elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
     hostname: elasticsearch
+    domainname: docker.internal
     ulimits:
       memlock:
         soft: -1
@@ -36,6 +38,7 @@ services:
     container_name: logstash01
     image: docker.elastic.co/logstash/logstash:6.4.2
     hostname: logstash01
+    domainname: docker.internal
     environment:
       XPACK_MONITORING_ENABLED: 'true'
     volumes:
@@ -47,6 +50,7 @@ services:
     container_name: logstash02
     image: docker.elastic.co/logstash/logstash:6.4.2
     hostname: logstash02
+    domainname: docker.internal
     environment:
       XPACK_MONITORING_ENABLED: 'true'
     volumes:
@@ -58,10 +62,12 @@ services:
     container_name: kibana
     image: docker.elastic.co/kibana/kibana:6.4.2
     hostname: kibana
+    domainname: docker.internal
     ports:
     - "5601:5601"
     environment:
       XPACK_MONITORING_ENABLED: 'true'
+      ELASTICSEARCH_URL: http://elasticsearch.docker.internal:9200
     depends_on:
     - elasticsearch
 
@@ -69,6 +75,7 @@ services:
     container_name: graphite
     image: graphiteapp/graphite-statsd
     hostname: graphite
+    domainname: docker.internal
     ports:
     - "80:80"
     - "2003:2003"
@@ -77,6 +84,7 @@ services:
     container_name: grafana
     image: grafana/grafana
     hostname: grafana
+    domainname: docker.internal
     ports:
     - "3000:3000"
     volumes:
