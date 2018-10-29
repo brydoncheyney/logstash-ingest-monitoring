@@ -1,0 +1,13 @@
+apiVersion: 1
+
+deleteDatasources:
+- name: Graphite
+
+datasources:
+- name: Graphite
+  type: graphite
+  access: proxy
+  url: http://graphite
+  isDefault: true
+  jsonData:
+    graphiteVersion: "1.1"

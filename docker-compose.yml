@@ -1,0 +1,83 @@
+version: '3'
+
+services:
+  dns:
+    container_name: dns
+    image: defreitas/dns-proxy-server
+    hostname: dns
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/resolv.conf:/etc/resolv.conf
+    ports:
+      - "5380:5380"
+    environment:
+      MG_REGISTER_CONTAINER_NAMES: 1
+    logging:
+        driver: none
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
+    hostname: elasticsearch
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+    - "9200:9200"
+    - "9300:9300"
+    environment:
+      XPACK_MONITORING_ENABLED: 'true'
+      XPACK_MONITORING_COLLECTION_ENABLED: 'true'
+    volumes:
+    - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+
+  logstash01:
+    container_name: logstash01
+    image: docker.elastic.co/logstash/logstash:6.4.2
+    hostname: logstash01
+    environment:
+      XPACK_MONITORING_ENABLED: 'true'
+    volumes:
+     - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    depends_on:
+    - elasticsearch
+
+  logstash02:
+    container_name: logstash02
+    image: docker.elastic.co/logstash/logstash:6.4.2
+    hostname: logstash02
+    environment:
+      XPACK_MONITORING_ENABLED: 'true'
+    volumes:
+     - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    depends_on:
+    - elasticsearch
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:6.4.2
+    hostname: kibana
+    ports:
+    - "5601:5601"
+    environment:
+      XPACK_MONITORING_ENABLED: 'true'
+    depends_on:
+    - elasticsearch
+
+  graphite:
+    container_name: graphite
+    image: graphiteapp/graphite-statsd
+    hostname: graphite
+    ports:
+    - "80:80"
+    - "2003:2003"
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    hostname: grafana
+    ports:
+    - "3000:3000"
+    volumes:
+    - ./grafana/etc/grafana/provisioning:/etc/grafana/provisioning
