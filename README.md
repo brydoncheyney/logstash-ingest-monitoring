@@ -17,6 +17,8 @@ Bring up the stack,
 ./up
 ```
 
+(this will configure the elasticsearch environment and use `docker-compose` to provision the containters)
+
 ## Logstash
 
 Logstash collects, parses and transforms logs before sending to Elasticsearch.
